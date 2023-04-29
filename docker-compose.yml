@@ -1,0 +1,45 @@
+version: '3'
+services:
+  socket-runner-server:
+    image: socket-runner:latest
+    container_name: socket-runner-server
+    build:
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    ports:
+      - "2255:2255"
+      - "2256:2256"
+      - "2257:2257"
+    networks:
+      - socket-runner
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2257", "server.py"]
+
+  socket-runner-client:
+    image: socket-runner:latest
+    container_name: socket-runner-client
+    build:
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    ports:
+      - "2258:2258"
+    networks:
+      - socket-runner
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2258", "--wait-for-client", "client.py"]
+    
+networks:
+  socket-runner:
+    driver: bridge

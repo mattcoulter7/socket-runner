@@ -1,0 +1,4 @@
+twisted
+debugpy
+gevent
+python-dotenv
