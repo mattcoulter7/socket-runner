@@ -19,6 +19,11 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
+      - GEVENT_SUPPORT=True
+      - tcp_host=0.0.0.0
+      - tcp_port=2255
+      - udp_host=0.0.0.0
+      - udp_port=2256
     entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2257", "server.py"]
 
   socket-runner-client:
@@ -38,8 +43,13 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
+      - GEVENT_SUPPORT=True
+      - tcp_host=socket-runner-server
+      - tcp_port=2255
+      - udp_host=socket-runner-server
+      - udp_port=2256
     entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2258", "--wait-for-client", "client.py"]
-    
+
 networks:
   socket-runner:
     driver: bridge

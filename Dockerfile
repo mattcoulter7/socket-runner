@@ -2,8 +2,8 @@ FROM python:latest
 
 RUN mkdir -p /app
 WORKDIR /app
-EXPOSE 2255
-EXPOSE 2256
+EXPOSE 80
+EXPOSE 161
 
 RUN set -x \
     && apt-get update && apt-get install -y --no-install-recommends \
