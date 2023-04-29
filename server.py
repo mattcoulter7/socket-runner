@@ -1,7 +1,8 @@
 import os
+import socket
+import logging
 
 from dotenv import load_dotenv
-from twisted.internet import reactor
 
 from socketrunner import ManagedRunner
 from socketrunner.messaging import Packet
@@ -9,14 +10,24 @@ from socketrunner.tcp import TCPServer
 from socketrunner.udp import UDPServer
 
 load_dotenv()
+logging.basicConfig(level=logging.DEBUG)
+
+TCP_HOST = os.getenv("tcp_host")
+TCP_PORT = int(os.getenv("tcp_port"))
+UDP_HOST = os.getenv("udp_host")
+UDP_PORT = int(os.getenv("udp_port"))
+
+TCP_HOST = socket.gethostbyname(TCP_HOST)
+UDP_HOST = socket.gethostbyname(UDP_HOST)
+
 runner = ManagedRunner(
     TCPServer(
-        host=os.getenv("tcp_host"),
-        port=int(os.getenv("tcp_port"))
+        host=TCP_HOST,
+        port=TCP_PORT
     ),
     UDPServer(
-        host=os.getenv("udp_host"),
-        port=int(os.getenv("udp_port"))
+        host=UDP_HOST,
+        port=UDP_PORT
     )
 )
 

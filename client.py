@@ -1,5 +1,7 @@
 import time
 import os
+import socket
+import logging
 
 from dotenv import load_dotenv
 from twisted.internet import reactor
@@ -10,14 +12,21 @@ from socketrunner.tcp import TCPClient
 from socketrunner.udp import UDPClient
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
+
+TCP_HOST = os.getenv("tcp_host")
+TCP_PORT = int(os.getenv("tcp_port"))
+UDP_HOST = os.getenv("udp_host")
+UDP_PORT = int(os.getenv("udp_port"))
+
 runner = ManagedRunner(
     TCPClient(
-        server_host=os.getenv("tcp_host"),
-        server_port=int(os.getenv("tcp_port"))
+        server_host=TCP_HOST,
+        server_port=TCP_PORT,
     ),
     UDPClient(
-        server_host=os.getenv("udp_host"),
-        server_port=int(os.getenv("udp_port"))
+        server_host=UDP_HOST,
+        server_port=UDP_PORT
     )
 )
 
@@ -51,5 +60,5 @@ def on_data(data: Packet, sender):
 if __name__ == "__main__":
     runner.on("pong", on_pong)
     runner.on("data", on_data)
-    reactor.callLater(1, ping)
+    reactor.callLater(5, ping)
     runner.start()
