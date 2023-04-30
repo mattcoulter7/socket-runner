@@ -29,7 +29,3 @@ class UDPClient(UDPSocketProtocolEnd):
         logger.info(f"Starting UDPClient to {self.server_host}:{self.server_port}")
         reactor.listenUDP(self.port, self.udp_protocol)
         self.udp_protocol.transport.connect(self.server_host, self.server_port)
-
-    def send(self, data: bytes, addr: IAddress = None):
-        addr = addr or self.server_addr
-        return super().send(data, addr)

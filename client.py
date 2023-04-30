@@ -1,33 +1,40 @@
 import time
 import os
-import socket
 import logging
 
 from dotenv import load_dotenv
 from twisted.internet import reactor
 
-from socketrunner import ManagedRunner
+from socketrunner import SocketRunner
 from socketrunner.messaging import Packet
 from socketrunner.tcp import TCPClient
 from socketrunner.udp import UDPClient
+from socketrunner.connection.client import Client
+from socketrunner.utils import parse_ports
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 TCP_HOST = os.getenv("tcp_host")
-TCP_PORT = int(os.getenv("tcp_port"))
+TCP_PORTS = parse_ports(os.getenv("tcp_port"))
 UDP_HOST = os.getenv("udp_host")
-UDP_PORT = int(os.getenv("udp_port"))
+UDP_PORTS = parse_ports(os.getenv("udp_port"))
 
-runner = ManagedRunner(
-    TCPClient(
-        server_host=TCP_HOST,
-        server_port=TCP_PORT,
-    ),
-    UDPClient(
-        server_host=UDP_HOST,
-        server_port=UDP_PORT
-    )
+runner = SocketRunner(
+    ends=[
+        *[
+            TCPClient(
+                server_host=TCP_HOST,
+                server_port=port
+            ) for port in TCP_PORTS
+        ],
+        *[
+            UDPClient(
+                server_host=TCP_HOST,
+                server_port=port
+            ) for port in UDP_PORTS
+        ]
+    ]
 )
 
 
@@ -44,7 +51,7 @@ def ping():
         reactor.callLater(1, ping)
 
 
-def on_pong(data: Packet, sender):
+def on_pong(data: Packet, sender: Client):
     print(f'{data} from {sender}')
     send_time = data.data["time"]
     receive_time = time.time_ns()
@@ -53,7 +60,7 @@ def on_pong(data: Packet, sender):
     print(f"Ping: {ping_ms}ms")
 
 
-def on_data(data: Packet, sender):
+def on_data(data: Packet, sender: Client):
     print(f'{data} from {sender}')
 
 

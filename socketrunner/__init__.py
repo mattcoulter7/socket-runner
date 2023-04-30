@@ -1,4 +1,3 @@
 from .runner import (
-    SocketRunner,
-    ManagedRunner
+    SocketRunner
 )

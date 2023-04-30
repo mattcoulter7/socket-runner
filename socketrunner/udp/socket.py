@@ -4,6 +4,7 @@ from twisted.internet.address import IAddress
 from ..base.protocol import BaseProtocol
 from ..base.socket import BaseSocketProtocolEnd
 from .protocol import UDPProtocol
+from ..connection.client import Client
 
 logger = logging.getLogger("socket-runner::UDPSocketProtocolEnd")
 
@@ -13,29 +14,14 @@ class UDPSocketProtocolEnd(BaseSocketProtocolEnd):
             self,
             server_host: str,
             server_port: int,
-            timeout: float = 30.,
             **kwargs) -> None:
         logger.debug(f"Initializing UDPSocketProtocolEnd on {server_host}:{server_port}")
         super().__init__(
             protocol="UDP",
             server_host=server_host,
             server_port=server_port,
-            timeout=timeout,
             **kwargs
         )
 
         self.udp_protocol = UDPProtocol()
-        self.udp_protocol.receive_callback = self._receive
-
-    def send(self, data: bytes, addr: IAddress):
-        # We don't need to check for client as connections aren't maintained in UDP
-        self.udp_protocol.send(
-            data=data,
-            addr=addr
-        )
-
-    def _receive(self, data: bytes, protocol: BaseProtocol, addr: IAddress):
-        # client pool on receive message simply for keeping track of past connections
-        logger.info(f"Handling received data from {addr} via UDP")
-        self.client_pool.register_client(addr, protocol)
-        return super()._receive(data, protocol, addr)
+        self.udp_protocol.on_data_received_callback = self.on_data_received

@@ -29,7 +29,3 @@ class TCPClient(TCPSocketProtocolEnd):
             self.server_port,
             self.factory
         )
-
-    def send(self, data: bytes, addr: IAddress = None):
-        addr = addr or self.server_addr
-        return super().send(data, addr)

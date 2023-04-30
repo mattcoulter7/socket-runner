@@ -26,13 +26,3 @@ class TCPProtocol(protocol.Protocol, BaseProtocol):
     def connectionLost(self, reason):
         logger.warning(f"TCP connection lost due to reason=`{reason}`")
         self.disconnect()
-
-    def connect(self):
-        if self.addr is not None and self.connect_callback is not None:
-            logger.debug(f"Forwarding connection with {self.addr} to `{self.connect_callback}`")
-            self.connect_callback(self, self.addr)
-
-    def disconnect(self):
-        if self.addr is not None and self.disconnect_callback is not None:
-            logger.debug(f"Forwarding disconnection with {self.addr} to `{self.connect_callback}`")
-            self.disconnect_callback(self, self.addr)

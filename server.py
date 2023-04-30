@@ -1,46 +1,50 @@
 import os
-import socket
 import logging
 
 from dotenv import load_dotenv
 
-from socketrunner import ManagedRunner
+from socketrunner import SocketRunner
 from socketrunner.messaging import Packet
 from socketrunner.tcp import TCPServer
 from socketrunner.udp import UDPServer
+from socketrunner.connection.client import Client
+from socketrunner.utils import parse_ports
 
 load_dotenv()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 TCP_HOST = os.getenv("tcp_host")
-TCP_PORT = int(os.getenv("tcp_port"))
+TCP_PORTS = parse_ports(os.getenv("tcp_port"))
 UDP_HOST = os.getenv("udp_host")
-UDP_PORT = int(os.getenv("udp_port"))
+UDP_PORTS = parse_ports(os.getenv("udp_port"))
 
-TCP_HOST = socket.gethostbyname(TCP_HOST)
-UDP_HOST = socket.gethostbyname(UDP_HOST)
-
-runner = ManagedRunner(
-    TCPServer(
-        host=TCP_HOST,
-        port=TCP_PORT
-    ),
-    UDPServer(
-        host=UDP_HOST,
-        port=UDP_PORT
-    )
+runner = SocketRunner(
+    ends=[
+        *[
+            TCPServer(
+                host=TCP_HOST,
+                port=port
+            ) for port in TCP_PORTS
+        ],
+        *[
+            UDPServer(
+                host=TCP_HOST,
+                port=port
+            ) for port in UDP_PORTS
+        ]
+    ]
 )
 
 
-def share(data: Packet, sender):
+def share(data: Packet, sender: Client):
     print(f'{data} from {sender}')
-    runner.broadcast(
+    runner.send(
         data=data,
-        protocol=sender.type
+        owner_addr=sender.owner.server_addr
     )
 
 
-def pong(data: Packet, sender):
+def pong(data: Packet, sender: Client):
     print(f'{data} from {sender}')
     message = Packet(
         event="pong",
@@ -48,8 +52,7 @@ def pong(data: Packet, sender):
     )
     runner.send(
         data=message,
-        protocol=sender.type,
-        addr=sender
+        client=sender
     )
 
 

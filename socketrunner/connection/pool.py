@@ -14,23 +14,25 @@ class ClientPool():
         logger.debug(f"Initializing ClientPool with timeout=`{timeout}`")
         self.clients = {}
         self.lock = threading.Lock()
-        self.cleaner_thread = threading.Thread(target=self._clean_expired_clients)
-        self.cleaner_thread.daemon = True
-        self.cleaner_thread.start()
+        # self.cleaner_thread = threading.Thread(target=self._clean_expired_clients)
+        # self.cleaner_thread.daemon = True
+        # self.cleaner_thread.start()
 
         self.timeout = timeout
 
-    def register_client(self, addr: IAddress, protocol):
+    def register_client(self, addr: IAddress, owner, protocol) -> Client:
         logger.debug(f"Registering Client {addr}")
         with self.lock:
             client_id = self._get_address_id(addr)
             if client_id not in self.clients:
                 self.clients[client_id] = Client(
-                    protocol=protocol,
+                    owner=owner,  # our host that their connection is established to
+                    protocol=protocol,  # the protocol we use to communicate with them
                     addr=addr
                 )
 
             self.clients[client_id].reregister(self.timeout)
+            return self.clients[client_id]
 
     def deregister_client(self, addr: IAddress):
         logger.debug(f"Deregistering Client {addr}")
@@ -49,10 +51,24 @@ class ClientPool():
             logger.debug(f"Client {addr} not found")
             return None
 
-    def get_clients(self):
+    def get_clients(
+        self,
+        owner_host: str = None,
+        owner_port: int = None,
+        protocol: str = None,
+        child_host: str = None,
+        child_port: int = None,
+    ):
         logger.debug(f"Getting Clients")
         with self.lock:
-            return self.clients.values()
+            return [
+                client for client in self.clients.values()
+                if (owner_host is None or client.owner.server_host == owner_host) and
+                (owner_port is None or client.owner.server_port == owner_port) and
+                (protocol is None or client.owner.protocol == protocol) and
+                (child_host is None or client.addr.host == child_host) and
+                (child_port is None or client.addr.port == child_port)
+            ]
 
     def _clean_expired_clients(self):
         while True:

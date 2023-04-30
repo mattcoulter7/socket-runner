@@ -10,9 +10,8 @@ services:
         limits:
           memory: 6G
     ports:
-      - "2255:2255"
-      - "2256:2256"
-      - "2257:2257"
+      - "1000-1999:1000-1999"
+      - "60000:60000"
     networks:
       - socket-runner
     env_file:
@@ -21,10 +20,10 @@ services:
       - PYTHONUNBUFFERED=1
       - GEVENT_SUPPORT=True
       - tcp_host=0.0.0.0
-      - tcp_port=2255
+      - tcp_port=1000-1499
       - udp_host=0.0.0.0
-      - udp_port=2256
-    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2257", "server.py"]
+      - udp_port=1500-1999
+    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:60000", "--wait-for-client", "server.py"]
 
   socket-runner-client:
     image: socket-runner:latest
@@ -36,7 +35,7 @@ services:
         limits:
           memory: 6G
     ports:
-      - "2258:2258"
+      - "60001:60001"
     networks:
       - socket-runner
     env_file:
@@ -45,10 +44,10 @@ services:
       - PYTHONUNBUFFERED=1
       - GEVENT_SUPPORT=True
       - tcp_host=socket-runner-server
-      - tcp_port=2255
+      - tcp_port=1000
       - udp_host=socket-runner-server
-      - udp_port=2256
-    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:2258", "--wait-for-client", "client.py"]
+      - udp_port=1500
+    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:60001", "--wait-for-client", "client.py"]
 
 networks:
   socket-runner:
