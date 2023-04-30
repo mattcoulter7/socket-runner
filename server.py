@@ -10,6 +10,7 @@ from socketrunner.udp import UDPServer
 from socketrunner.connection.client import Client
 from socketrunner.utils import parse_ports
 
+logger = logging.getLogger()
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
@@ -37,7 +38,6 @@ runner = SocketRunner(
 
 
 def share(data: Packet, sender: Client):
-    print(f'{data} from {sender}')
     runner.send(
         data=data,
         owner_addr=sender.owner.server_addr
@@ -45,18 +45,16 @@ def share(data: Packet, sender: Client):
 
 
 def pong(data: Packet, sender: Client):
-    print(f'{data} from {sender}')
-    message = Packet(
-        event="pong",
-        **data.data
-    )
     runner.send(
-        data=message,
+        data=Packet(
+            event="pong",
+            **data.data
+        ),
         client=sender
     )
 
 
 if __name__ == "__main__":
     runner.on("ping", pong)
-    runner.on("data", share)
+    runner.on("global", share)
     runner.start()

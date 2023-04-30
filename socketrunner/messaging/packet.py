@@ -27,7 +27,7 @@ class Packet(object):
         try:
             json_data = json.loads(data.decode())
         except Exception as e:
-            logger.warning(f"Failure during parsing of data. Skipping...")
+            logger.error(f"Failure during parsing of data. Skipping...")
             return None
 
         return Packet(

@@ -29,3 +29,8 @@ class UDPClient(UDPSocketProtocolEnd):
         logger.info(f"Starting UDPClient to {self.server_host}:{self.server_port}")
         reactor.listenUDP(self.port, self.udp_protocol)
         self.udp_protocol.transport.connect(self.server_host, self.server_port)
+        logger.info("Establishing a virtual connection")
+        self.on_client_connection(
+            self.udp_protocol,
+            self.server_addr
+        )
