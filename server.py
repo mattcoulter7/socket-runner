@@ -12,7 +12,7 @@ from socketrunner.utils import parse_ports
 
 logger = logging.getLogger()
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 TCP_HOST = os.getenv("tcp_host")
 TCP_PORTS = parse_ports(os.getenv("tcp_port"))

@@ -14,9 +14,9 @@ class ClientPool():
         logger.debug(f"Initializing ClientPool with timeout=`{timeout}`")
         self.clients = {}
         self.lock = threading.Lock()
-        # self.cleaner_thread = threading.Thread(target=self._clean_expired_clients)
-        # self.cleaner_thread.daemon = True
-        # self.cleaner_thread.start()
+        self.cleaner_thread = threading.Thread(target=self._clean_expired_clients)
+        self.cleaner_thread.daemon = True
+        self.cleaner_thread.start()
 
         self.timeout = timeout
 

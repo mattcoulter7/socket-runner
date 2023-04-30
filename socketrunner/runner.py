@@ -52,7 +52,7 @@ class SocketRunner():
             protocol: str = None,
             owner_addr: IAddress = None,):
         """Send a message for a given method"""
-        logger.info(f"Sending data via {protocol}")
+        logger.info(f"Sending data")
         data_bytes = data.as_bytes()
 
         clients: List[Client] = [client] if client else self.client_pool.get_clients(
