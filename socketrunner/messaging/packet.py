@@ -16,10 +16,11 @@ class Packet(object):
 
     def as_bytes(self) -> bytes:
         logger.debug("Converting packet to bytes")
-        return json.dumps({
+        # Convert JSON object to bytes
+        return (json.dumps({
             "event": self.event,
             **self.data
-        }).encode()
+        }) + "\n").encode()
 
     @staticmethod
     def from_bytes(data: bytes):

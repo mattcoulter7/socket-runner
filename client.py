@@ -46,9 +46,9 @@ def share_position():
             time=time.time_ns(),
             position=[5, 3, 2]
         ),
-        protocol="UDP"
+        protocol="TCP"
     )
-    reactor.callLater(1, ping)
+    reactor.callLater(1, share_position)
 
 
 def ping():
@@ -71,12 +71,12 @@ def on_pong(data: Packet, sender: Client):
 
 
 def on_data(data: Packet, sender: Client):
-    logger.info(f'{data} from {sender}')
+    logger.info(f'{data.data} from {sender.addr}')
 
 
 if __name__ == "__main__":
     runner.on("pong", on_pong)
-    runner.on("data", on_data)
+    runner.on("global", on_data)
     reactor.callLater(1, ping)
     reactor.callLater(1, share_position)
     runner.start()
